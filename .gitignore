@@ -1,0 +1,19 @@
+
+# Archivos temporales de Visual Studio
+.vs/
+Debug/
+Release/
+x64/
+x86/
+
+# Archivos de compilacion
+build/
+*.exe
+*.obj
+*.pdb
+*.ilk
+*.idb
+
+# Archivos temporales
+*.tmp
+*.log
