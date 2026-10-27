@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🏧 Cajero Automático
+# Cajero Automático
 
 ### Desarrollo de un Simulador de Cajero Automático en C++
 
@@ -215,7 +215,6 @@ El archivo `tipoCambio.csv` es independiente: el programa consulta su valor para
 
 La interfaz es de consola, con menús numerados. El flujo es: **autenticación con PIN → selección de cuenta → menú principal** (saldos, depósitos, retiros, transferencias, pago de servicios, cambio de cuenta y cierre de sesión).
 
-<!-- Agrega aquí tus capturas, por ejemplo: ![Autenticación](img/pin.png) -->
 
 ---
 
