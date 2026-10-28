@@ -17,17 +17,19 @@ const string RESET = "\033[0m";
 string ruta = "E:\\DatosCA";
 double tipoCambio = 0;
 
-class Cliente{
+class Cliente
+{
 private:
-int pkIdCliente;
+    int pkIdCliente;
     string nombre, carnetIdentidad, email, direccion, numTelefono, pinSeguridad;
     int edad;
+
 public:
     Cliente(int pkIdCliente, string nombre, string carnetIdentidad, int edad,
-          string email, string direccion, string numTelefono, string pinSeguridad)
+            string email, string direccion, string numTelefono, string pinSeguridad)
         : pkIdCliente(pkIdCliente), nombre(nombre), carnetIdentidad(carnetIdentidad),
           edad(edad), email(email), direccion(direccion),
-          numTelefono(numTelefono), pinSeguridad(pinSeguridad){}
+          numTelefono(numTelefono), pinSeguridad(pinSeguridad) {}
     int getPkIdCliente() { return pkIdCliente; }
     string getNombre() { return nombre; }
     string getCarnetIdentidad() { return carnetIdentidad; }
@@ -48,16 +50,17 @@ private:
 
 public:
     Servicios(int pkIdServicio, int fkIdCliente, string nombreServicio,
-          string categoria, double montoDeuda)
+              string categoria, double montoDeuda)
         : pkIdServicio(pkIdServicio), fkIdCliente(fkIdCliente),
-          nombreServicio(nombreServicio), categoria(categoria), 
-          montoDeuda(montoDeuda){}
+          nombreServicio(nombreServicio), categoria(categoria),
+          montoDeuda(montoDeuda) {}
     int getPkIdServicio() { return pkIdServicio; }
     int getFkIdCliente() { return fkIdCliente; }
     string getNombreServicio() { return nombreServicio; }
     string getCategoria() { return categoria; }
     double getMontoDeuda() { return montoDeuda; }
-    bool pagarServicio(double monto){
+    bool pagarServicio(double monto)
+    {
         if (monto > 0 && monto <= montoDeuda + 0.001)
         {
             montoDeuda -= monto;
@@ -69,30 +72,36 @@ public:
     }
 };
 
-class CuentaBancaria{
+class CuentaBancaria
+{
 private:
     int pkIdCuenta, fkIdCliente;
     string numeroCuenta, tipoMoneda;
     double saldo;
+
 public:
     CuentaBancaria(int pkIdCuenta, int fkIdCliente, string numeroCuenta,
-          double saldo, string tipoMoneda)
+                   double saldo, string tipoMoneda)
         : pkIdCuenta(pkIdCuenta), fkIdCliente(fkIdCliente),
-          numeroCuenta(numeroCuenta), saldo(saldo), tipoMoneda(tipoMoneda){}
+          numeroCuenta(numeroCuenta), saldo(saldo), tipoMoneda(tipoMoneda) {}
     int getPkIdCuenta() { return pkIdCuenta; }
     int getFkIdCliente() { return fkIdCliente; }
     string getNumeroCuenta() { return numeroCuenta; }
     double getSaldo() { return saldo; }
     string getTipoMoneda() { return tipoMoneda; }
-    bool depositar(double monto){
-        if (monto > 0){
+    bool depositar(double monto)
+    {
+        if (monto > 0)
+        {
             saldo += monto;
             return true;
         }
         return false;
     }
-    bool retirar(double monto){
-        if (monto > 0 && monto <= saldo + 0.001){
+    bool retirar(double monto)
+    {
+        if (monto > 0 && monto <= saldo + 0.001)
+        {
             saldo -= monto;
             if (saldo < 0.01)
                 saldo = 0;
@@ -101,12 +110,13 @@ public:
         return false;
     }
 
-    bool transferir(CuentaBancaria &destino, double monto){
+    bool transferir(CuentaBancaria &destino, double monto)
+    {
         if (pkIdCuenta == destino.getPkIdCuenta() || !retirar(monto))
         {
             cout << endl
-            << ROJO << "❌ Monto Inválido o Saldo Insuficiente" 
-            << RESET << endl;
+                 << ROJO << "❌ Monto Inválido o Saldo Insuficiente"
+                 << RESET << endl;
             return false;
         }
         double montoDestino = monto;
@@ -119,21 +129,24 @@ public:
         return false;
     }
 
-bool pagarServicio(Servicios &servicio, double monto){
-        double montoCuenta = (tipoMoneda == "USD") ? 
-        (monto / tipoCambio) : monto;
+    bool pagarServicio(Servicios &servicio, double monto)
+    {
+        double montoCuenta = (tipoMoneda == "USD") ? (monto / tipoCambio) : monto;
         if (fkIdCliente != servicio.getFkIdCliente() ||
-         monto > servicio.getMontoDeuda() + 0.001 || 
-         !retirar(montoCuenta))return false;
-        if (servicio.pagarServicio(monto))return true;
-        depositar(montoCuenta); 
+            monto > servicio.getMontoDeuda() + 0.001 ||
+            !retirar(montoCuenta))
+            return false;
+        if (servicio.pagarServicio(monto))
+            return true;
+        depositar(montoCuenta);
         return false;
     }
 };
 
-class Transaccion{
+class Transaccion
+{
 private:
-int pkIdTransaccion, fkIdCliente, fkIdCuentaOrigen, fkIdCuentaDestino, fkIdServicio;
+    int pkIdTransaccion, fkIdCliente, fkIdCuentaOrigen, fkIdCuentaDestino, fkIdServicio;
     double montoOrigen, montoDestino, tipoCambioAplicado;
     string tipoTransaccion, monedaOrigen, monedaDestino, fecha, hora;
 
@@ -159,7 +172,8 @@ public:
     {
         registrarFechaHora();
     }
-    bool guardarTransaccion(){
+    bool guardarTransaccion()
+    {
         string nombreArchivo = ruta + "\\transacciones.csv";
         ifstream lectura(nombreArchivo);
         int siguienteId = 0;
@@ -171,14 +185,15 @@ public:
         ofstream archivo(nombreArchivo, ios::app);
         if (!archivo.is_open())
             return false;
-        if (siguienteId == 0){
+        if (siguienteId == 0)
+        {
             archivo << "pkIdTransaccion|fkIdCliente|fkIdCuentaOrigen|fkIdCuentaDestino|fkIdServicio|tipoTransaccion|montoOrigen|monedaOrigen|montoDestino|monedaDestino|tipoCambioAplicado|fecha|hora" << endl;
             siguienteId = 1;
         }
         archivo << siguienteId << "|" << fkIdCliente << "|" << fkIdCuentaOrigen << "|" << fkIdCuentaDestino << "|"
-        << fkIdServicio << "|" << tipoTransaccion << "|" << fixed << setprecision(2) << montoOrigen << "|"
-        << monedaOrigen << "|" << montoDestino << "|" << monedaDestino << "|" << tipoCambioAplicado << "|"
-        << fecha << "|" << hora << endl;
+                << fkIdServicio << "|" << tipoTransaccion << "|" << fixed << setprecision(2) << montoOrigen << "|"
+                << monedaOrigen << "|" << montoDestino << "|" << monedaDestino << "|" << tipoCambioAplicado << "|"
+                << fecha << "|" << hora << endl;
         return true;
     }
 };
@@ -210,11 +225,6 @@ int main()
     cargarClientes(clientes);
     cargarCuentas(cuentas);
     cargarServicios(listaServicios);
-    if (clientes.empty() || cuentas.empty())
-    {
-        cout << ROJO << "❌ Faltan clientes o cuentas para iniciar el sistema." << RESET << endl;
-        return 1;
-    }
     int pkIdCliente = verificarPin(clientes);
     validarTipoCambio(tipoCambio);
     int cuentaSeleccionada = seleccionarCuenta(cuentas, pkIdCliente);
@@ -227,12 +237,13 @@ int main()
 
 void leer(string texto, int &var)
 {
-     cout << texto;
+    cout << texto;
     while (!(cin >> var))
     {
         cin.clear();
         cin.ignore(1000, '\n');
-        cout << AMARILLO << "\n⚠️ Caracter Invalido\n" << RESET;
+        cout << AMARILLO << "\n⚠️ Caracter Invalido\n"
+             << RESET;
         cout << texto;
     }
 }
@@ -243,8 +254,9 @@ void leer(string texto, double &var)
     {
         cin.clear();
         cin.ignore(1000, '\n');
-        cout << AMARILLO << "\n⚠️ Caracter Invalido\n" << RESET;
-        cout<< texto;
+        cout << AMARILLO << "\n⚠️ Caracter Invalido\n"
+             << RESET;
+        cout << texto;
     }
 }
 void leer(string texto, string &var)
@@ -257,42 +269,40 @@ void cargarClientes(vector<Cliente> &clientes)
 {
     ifstream archivo(ruta + "\\clientes.csv");
     string linea, id, nombre, carnet, edad, email, direccion, telefono, pin;
-    getline(archivo, linea); 
-
+    getline(archivo, linea);
     while (getline(archivo, id, '|') && getline(archivo, nombre, '|') &&
            getline(archivo, carnet, '|') && getline(archivo, edad, '|') &&
            getline(archivo, email, '|') && getline(archivo, direccion, '|') &&
            getline(archivo, telefono, '|') && getline(archivo, pin))
     {
-        clientes.push_back(Cliente(stoi(id), nombre, carnet, stoi(edad), email, direccion, telefono, pin));
+        clientes.push_back(Cliente(stoi(id), nombre, carnet, stoi(edad),
+                                   email, direccion, telefono, pin));
     }
 }
-
 void cargarCuentas(vector<CuentaBancaria> &cuentas)
 {
     ifstream archivo(ruta + "\\cuentas.csv");
     string linea, idCuenta, idCliente, numero, moneda, saldo;
-    getline(archivo, linea); 
-
+    getline(archivo, linea);
     while (getline(archivo, idCuenta, '|') && getline(archivo, idCliente, '|') &&
            getline(archivo, numero, '|') && getline(archivo, moneda, '|') &&
            getline(archivo, saldo))
     {
-        cuentas.push_back(CuentaBancaria(stoi(idCuenta), stoi(idCliente), numero, stod(saldo), moneda));
+        cuentas.push_back(CuentaBancaria(stoi(idCuenta), stoi(idCliente),
+                                         numero, stod(saldo), moneda));
     }
 }
-
 void cargarServicios(vector<Servicios> &listaServicios)
 {
     ifstream archivo(ruta + "\\servicios.csv");
     string linea, idServicio, idCliente, nombre, categoria, deuda;
-    getline(archivo, linea); 
-
+    getline(archivo, linea);
     while (getline(archivo, idServicio, '|') && getline(archivo, idCliente, '|') &&
            getline(archivo, nombre, '|') && getline(archivo, categoria, '|') &&
            getline(archivo, deuda))
     {
-        listaServicios.push_back(Servicios(stoi(idServicio), stoi(idCliente), nombre, categoria, stod(deuda)));
+        listaServicios.push_back(Servicios(stoi(idServicio),
+                                           stoi(idCliente), nombre, categoria, stod(deuda)));
     }
 }
 
@@ -305,17 +315,15 @@ void validarTipoCambio(double &cambio)
     localtime_s(&hoy, &tiempo);
     stringstream fechaActual;
     fechaActual << put_time(&hoy, "%d/%m/%Y");
-    
     cambio = 0;
-
     if (archivo.is_open())
     {
-        getline(archivo, linea); 
+        getline(archivo, linea);
         if (getline(archivo, fecha, '|') && getline(archivo, valor))
         {
             if (fecha == fechaActual.str())
             {
-                cambio = stod(valor); 
+                cambio = stod(valor);
             }
         }
         archivo.close();
@@ -325,19 +333,23 @@ void validarTipoCambio(double &cambio)
     if (cambio > 0)
     {
         cout << VERDE << "           💱 VERIFICACIÓN DE TIPO DE CAMBIO 💱           " << RESET << endl;
-        cout << VERDE << "==========================================================" << RESET << endl << endl;
-        cout << VERDE << "  [ ✓ ] Tipo de Cambio Verificado Correctamente" << RESET << endl << endl;
-        cout << CIAN  << "  📅 Fecha Actual:   " << RESET << fechaActual.str() << endl;
-        cout << CIAN  << "  💵 Cotización USD: " << RESET << fixed << setprecision(2) << cambio << " BOB" << endl << endl;
+        cout << VERDE << "==========================================================" << RESET << endl
+             << endl;
+        cout << VERDE << "  [ ✓ ] Tipo de Cambio Verificado Correctamente" << RESET << endl
+             << endl;
+        cout << CIAN << "  📅 Fecha Actual:   " << RESET << fechaActual.str() << endl;
+        cout << CIAN << "  💵 Cotización USD: " << RESET << fixed << setprecision(2) << cambio << " BOB" << endl
+             << endl;
     }
     else
     {
-        cout << ROJO  << "             ⚠️ ERROR DE TIPO DE CAMBIO ⚠️               " << RESET << endl;
-        cout << VERDE << "==========================================================" << RESET << endl << endl;
-        cout << ROJO  << "  ❌ No se encontró un tipo de cambio válido para hoy." << RESET << endl;
-        cout << CIAN  << "  📅 Fecha requerida: " << RESET << fechaActual.str() << endl;
+        cout << ROJO << "             ⚠️ ERROR DE TIPO DE CAMBIO ⚠️               " << RESET << endl;
+        cout << VERDE << "==========================================================" << RESET << endl
+             << endl;
+        cout << ROJO << "  ❌ No se encontró un tipo de cambio válido para hoy." << RESET << endl;
+        cout << CIAN << "  📅 Fecha requerida: " << RESET << fechaActual.str() << endl;
         cout << VERDE << "==========================================================" << RESET << endl;
-        cout << ROJO  << "\n🔒 Cerrando el programa por seguridad..." << RESET << endl;
+        cout << ROJO << "\n🔒 Cerrando el programa por seguridad..." << RESET << endl;
         system("pause > nul");
         exit(0);
     }
@@ -378,8 +390,6 @@ int verificarPin(vector<Cliente> &clientes)
          << ROJO << "🔒 Demasiados intentos. Cerrando el sistema..." << RESET << endl;
     exit(0);
 }
-
-
 
 int seleccionarCuenta(vector<CuentaBancaria> &cuentas, int pkIdCliente, bool permitirVolver)
 {
@@ -497,11 +507,10 @@ void realizarDeposito(vector<CuentaBancaria> &cuentas, int cuentaSeleccionada, i
 
 void realizarTransferencia(vector<CuentaBancaria> &cuentas, int cuentaSeleccionada, int pkIdCliente, bool propia, vector<Servicios> &listaServicios)
 {
-    cout << endl << VERDE << (propia ? "============= 🔄 TRANSFERIR A CUENTAS PROPIAS ============" : "=============== 💸 TRANSFERIR A TERCEROS =================") << RESET << endl;
-
+    cout << endl
+         << VERDE << (propia ? "============= 🔄 TRANSFERIR A CUENTAS PROPIAS ============" : "=============== 💸 TRANSFERIR A TERCEROS =================") << RESET << endl;
     string numeroDestino;
     leer(CIAN + "▶ Cuenta Destino: " + RESET, numeroDestino);
-
     int indiceDestino = -1;
     for (size_t i = 0; i < cuentas.size(); i++)
     {
@@ -513,7 +522,6 @@ void realizarTransferencia(vector<CuentaBancaria> &cuentas, int cuentaSelecciona
             break;
         }
     }
-
     if (indiceDestino == -1)
     {
         cout << endl
@@ -531,7 +539,7 @@ void realizarTransferencia(vector<CuentaBancaria> &cuentas, int cuentaSelecciona
         double cambio = (origen.getTipoMoneda() != destino.getTipoMoneda()) ? tipoCambio : 0;
         string tipo = propia ? "Transferencia Propia" : "Transferencia Terceros";
         Transaccion trans(pkIdCliente, origen.getPkIdCuenta(), tipo, monto, origen.getTipoMoneda(),
-        destino.getPkIdCuenta(), 0, recibido, destino.getTipoMoneda(), cambio);
+                          destino.getPkIdCuenta(), 0, recibido, destino.getTipoMoneda(), cambio);
         trans.guardarTransaccion();
         guardarDatosFinales(cuentas, listaServicios);
         cout << endl
@@ -654,10 +662,13 @@ void menuServicios(vector<Servicios> &listaServicios, vector<CuentaBancaria> &cu
             Transaccion pago(pkIdCliente, cuenta.getPkIdCuenta(), "Pago Servicio", cobrado, cuenta.getTipoMoneda(), 0, servicio.getPkIdServicio(), monto, "BOB", cambio);
             pago.guardarTransaccion();
             guardarDatosFinales(cuentas, listaServicios);
-            if (cuenta.getTipoMoneda() == "USD"){
-            cout << endl << VERDE << "  ✅ Se debitó: " << cobrado <<"USD"<< RESET << endl;
+            if (cuenta.getTipoMoneda() == "USD")
+            {
+                cout << endl
+                     << VERDE << "  ✅ Se debitó: " << fixed << setprecision(2) << cobrado << " USD" << RESET << endl;
             }
-            cout << endl << VERDE << "  ✅ Pago Exitoso" << RESET << endl;
+            cout << endl
+                 << VERDE << "  ✅ Pago Exitoso" << RESET << endl;
             cout << CIAN << "  💸 Deuda Restante: " << RESET << fixed << setprecision(2) << servicio.getMontoDeuda() << " BOB" << endl;
         }
         else
