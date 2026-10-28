@@ -17,26 +17,17 @@ const string RESET = "\033[0m";
 string ruta = "E:\\DatosCA";
 double tipoCambio = 0;
 
-class Cliente
-{
+class Cliente{
 private:
-    int pkIdCliente;
-    string nombre;
-    string carnetIdentidad;
+int pkIdCliente;
+    string nombre, carnetIdentidad, email, direccion, numTelefono, pinSeguridad;
     int edad;
-    string email;
-    string direccion;
-    string numTelefono;
-    string pinSeguridad;
-
 public:
     Cliente(int pkIdCliente, string nombre, string carnetIdentidad, int edad,
-            string email, string direccion, string numTelefono, string pinSeguridad)
+          string email, string direccion, string numTelefono, string pinSeguridad)
         : pkIdCliente(pkIdCliente), nombre(nombre), carnetIdentidad(carnetIdentidad),
           edad(edad), email(email), direccion(direccion),
-          numTelefono(numTelefono), pinSeguridad(pinSeguridad)
-    {
-    }
+          numTelefono(numTelefono), pinSeguridad(pinSeguridad){}
     int getPkIdCliente() { return pkIdCliente; }
     string getNombre() { return nombre; }
     string getCarnetIdentidad() { return carnetIdentidad; }
@@ -46,29 +37,27 @@ public:
     string getNumTelefono() { return numTelefono; }
     string getPinSeguridad() { return pinSeguridad; }
 };
+
 class Servicios
 {
 private:
     int pkIdServicio;
     int fkIdCliente;
-    string nombreServicio;
-    string categoria;
+    string nombreServicio, categoria;
     double montoDeuda;
 
 public:
     Servicios(int pkIdServicio, int fkIdCliente, string nombreServicio,
-              string categoria, double montoDeuda)
+          string categoria, double montoDeuda)
         : pkIdServicio(pkIdServicio), fkIdCliente(fkIdCliente),
-          nombreServicio(nombreServicio), categoria(categoria), montoDeuda(montoDeuda)
-    {
-    }
+          nombreServicio(nombreServicio), categoria(categoria), 
+          montoDeuda(montoDeuda){}
     int getPkIdServicio() { return pkIdServicio; }
     int getFkIdCliente() { return fkIdCliente; }
     string getNombreServicio() { return nombreServicio; }
     string getCategoria() { return categoria; }
     double getMontoDeuda() { return montoDeuda; }
-    bool pagarServicio(double monto)
-    {
+    bool pagarServicio(double monto){
         if (monto > 0 && monto <= montoDeuda + 0.001)
         {
             montoDeuda -= monto;
@@ -80,40 +69,30 @@ public:
     }
 };
 
-class CuentaBancaria
-{
+class CuentaBancaria{
 private:
-    int pkIdCuenta;
-    int fkIdCliente;
-    string numeroCuenta;
+    int pkIdCuenta, fkIdCliente;
+    string numeroCuenta, tipoMoneda;
     double saldo;
-    string tipoMoneda;
-
 public:
     CuentaBancaria(int pkIdCuenta, int fkIdCliente, string numeroCuenta,
-                   double saldo, string tipoMoneda)
+          double saldo, string tipoMoneda)
         : pkIdCuenta(pkIdCuenta), fkIdCliente(fkIdCliente),
-          numeroCuenta(numeroCuenta), saldo(saldo), tipoMoneda(tipoMoneda)
-    {
-    }
+          numeroCuenta(numeroCuenta), saldo(saldo), tipoMoneda(tipoMoneda){}
     int getPkIdCuenta() { return pkIdCuenta; }
     int getFkIdCliente() { return fkIdCliente; }
     string getNumeroCuenta() { return numeroCuenta; }
     double getSaldo() { return saldo; }
     string getTipoMoneda() { return tipoMoneda; }
-    bool depositar(double monto)
-    {
-        if (monto > 0)
-        {
+    bool depositar(double monto){
+        if (monto > 0){
             saldo += monto;
             return true;
         }
         return false;
     }
-    bool retirar(double monto)
-    {
-        if (monto > 0 && monto <= saldo + 0.001)
-        {
+    bool retirar(double monto){
+        if (monto > 0 && monto <= saldo + 0.001){
             saldo -= monto;
             if (saldo < 0.01)
                 saldo = 0;
@@ -121,100 +100,42 @@ public:
         }
         return false;
     }
-    bool transferir(CuentaBancaria &destino, double monto)
-    {
-        if (pkIdCuenta == destino.getPkIdCuenta())
+
+    bool transferir(CuentaBancaria &destino, double monto){
+        if (pkIdCuenta == destino.getPkIdCuenta() || !retirar(monto))
         {
             cout << endl
-                 << ROJO << "❌ No puede transferir a la misma cuenta" << RESET << endl;
-            return false;
-        }
-        if (monto <= 0 || monto > saldo + 0.001)
-        {
-            cout << endl
-                 << ROJO << "❌ Monto Inválido o Saldo Insuficiente" << RESET << endl;
-            return false;
-        }
-        string monedaDestino = destino.getTipoMoneda();
-        if ((tipoMoneda != "BOB" && tipoMoneda != "USD") ||
-            (monedaDestino != "BOB" && monedaDestino != "USD"))
-        {
-            cout << endl
-                 << ROJO << "❌ Moneda Inválida" << RESET << endl;
+            << ROJO << "❌ Monto Inválido o Saldo Insuficiente" 
+            << RESET << endl;
             return false;
         }
         double montoDestino = monto;
-        if (tipoMoneda != monedaDestino)
-        {
-            if (tipoCambio <= 0)
-            {
-                cout << endl
-                     << ROJO << "❌ Tipo de Cambio Inválido" << RESET << endl;
-                return false;
-            }
+        if (tipoMoneda != destino.getTipoMoneda())
             montoDestino = (tipoMoneda == "BOB") ? (monto / tipoCambio) : (monto * tipoCambio);
-        }
-        if (montoDestino <= 0)
-        {
-            cout << endl
-                 << ROJO << "❌ Monto Convertido Inválido" << RESET << endl;
-            return false;
-        }
-        if (retirar(monto))
-        {
-            if (destino.depositar(montoDestino))
-                return true;
-            depositar(monto);
-        }
+
+        if (destino.depositar(montoDestino))
+            return true;
+        depositar(monto);
         return false;
     }
 
-    bool pagarServicio(Servicios &servicio, double monto)
-    {
-        if (fkIdCliente != servicio.getFkIdCliente() || monto <= 0 || monto > servicio.getMontoDeuda() + 0.001)
-        {
-            return false;
-        }
-        double montoCuenta = monto;
-        if (tipoMoneda == "USD")
-        {
-            if (tipoCambio <= 0)
-                return false;
-            montoCuenta = monto / tipoCambio;
-        }
-        else if (tipoMoneda != "BOB")
-        {
-            return false;
-        }
-        if (montoCuenta <= 0 || montoCuenta > saldo + 0.001)
-            return false;
-
-        if (retirar(montoCuenta))
-        {
-            if (servicio.pagarServicio(monto))
-                return true;
-            depositar(montoCuenta);
-        }
+bool pagarServicio(Servicios &servicio, double monto){
+        double montoCuenta = (tipoMoneda == "USD") ? 
+        (monto / tipoCambio) : monto;
+        if (fkIdCliente != servicio.getFkIdCliente() ||
+         monto > servicio.getMontoDeuda() + 0.001 || 
+         !retirar(montoCuenta))return false;
+        if (servicio.pagarServicio(monto))return true;
+        depositar(montoCuenta); 
         return false;
     }
 };
 
-class Transaccion
-{
+class Transaccion{
 private:
-    int pkIdTransaccion;
-    int fkIdCliente;
-    int fkIdCuentaOrigen;
-    int fkIdCuentaDestino;
-    int fkIdServicio;
-    string tipoTransaccion;
-    double montoOrigen;
-    string monedaOrigen;
-    double montoDestino;
-    string monedaDestino;
-    double tipoCambioAplicado;
-    string fecha;
-    string hora;
+int pkIdTransaccion, fkIdCliente, fkIdCuentaOrigen, fkIdCuentaDestino, fkIdServicio;
+    double montoOrigen, montoDestino, tipoCambioAplicado;
+    string tipoTransaccion, monedaOrigen, monedaDestino, fecha, hora;
 
     void registrarFechaHora()
     {
@@ -238,8 +159,7 @@ public:
     {
         registrarFechaHora();
     }
-    bool guardarTransaccion()
-    {
+    bool guardarTransaccion(){
         string nombreArchivo = ruta + "\\transacciones.csv";
         ifstream lectura(nombreArchivo);
         int siguienteId = 0;
@@ -251,15 +171,14 @@ public:
         ofstream archivo(nombreArchivo, ios::app);
         if (!archivo.is_open())
             return false;
-        if (siguienteId == 0)
-        {
+        if (siguienteId == 0){
             archivo << "pkIdTransaccion|fkIdCliente|fkIdCuentaOrigen|fkIdCuentaDestino|fkIdServicio|tipoTransaccion|montoOrigen|monedaOrigen|montoDestino|monedaDestino|tipoCambioAplicado|fecha|hora" << endl;
             siguienteId = 1;
         }
         archivo << siguienteId << "|" << fkIdCliente << "|" << fkIdCuentaOrigen << "|" << fkIdCuentaDestino << "|"
-                << fkIdServicio << "|" << tipoTransaccion << "|" << fixed << setprecision(2) << montoOrigen << "|"
-                << monedaOrigen << "|" << montoDestino << "|" << monedaDestino << "|" << tipoCambioAplicado << "|"
-                << fecha << "|" << hora << endl;
+        << fkIdServicio << "|" << tipoTransaccion << "|" << fixed << setprecision(2) << montoOrigen << "|"
+        << monedaOrigen << "|" << montoDestino << "|" << monedaDestino << "|" << tipoCambioAplicado << "|"
+        << fecha << "|" << hora << endl;
         return true;
     }
 };
@@ -311,7 +230,6 @@ void leer(string texto, int &var)
      cout << texto;
     while (!(cin >> var))
     {
-       
         cin.clear();
         cin.ignore(1000, '\n');
         cout << AMARILLO << "\n⚠️ Caracter Invalido\n" << RESET;
@@ -323,7 +241,6 @@ void leer(string texto, double &var)
     cout << texto;
     while (!(cin >> var))
     {
-        
         cin.clear();
         cin.ignore(1000, '\n');
         cout << AMARILLO << "\n⚠️ Caracter Invalido\n" << RESET;
@@ -540,9 +457,7 @@ void realizarRetiro(vector<CuentaBancaria> &cuentas, int cuentaSeleccionada, int
     cout << endl
          << VERDE << "==================== 💵 RETIRAR DINERO ===================" << RESET << endl;
     leer(CIAN + "▶ Monto a Retirar: " + RESET, monto);
-
     CuentaBancaria &cuenta = cuentas[cuentaSeleccionada];
-
     if (cuenta.retirar(monto))
     {
         Transaccion retiro(pkIdCliente, cuenta.getPkIdCuenta(), "Retiro", monto, cuenta.getTipoMoneda());
@@ -616,7 +531,7 @@ void realizarTransferencia(vector<CuentaBancaria> &cuentas, int cuentaSelecciona
         double cambio = (origen.getTipoMoneda() != destino.getTipoMoneda()) ? tipoCambio : 0;
         string tipo = propia ? "Transferencia Propia" : "Transferencia Terceros";
         Transaccion trans(pkIdCliente, origen.getPkIdCuenta(), tipo, monto, origen.getTipoMoneda(),
-                          destino.getPkIdCuenta(), 0, recibido, destino.getTipoMoneda(), cambio);
+        destino.getPkIdCuenta(), 0, recibido, destino.getTipoMoneda(), cambio);
         trans.guardarTransaccion();
         guardarDatosFinales(cuentas, listaServicios);
         cout << endl
@@ -739,8 +654,10 @@ void menuServicios(vector<Servicios> &listaServicios, vector<CuentaBancaria> &cu
             Transaccion pago(pkIdCliente, cuenta.getPkIdCuenta(), "Pago Servicio", cobrado, cuenta.getTipoMoneda(), 0, servicio.getPkIdServicio(), monto, "BOB", cambio);
             pago.guardarTransaccion();
             guardarDatosFinales(cuentas, listaServicios);
-            cout << endl
-                 << VERDE << "  ✅ Pago Exitoso" << RESET << endl;
+            if (cuenta.getTipoMoneda() == "USD"){
+            cout << endl << VERDE << "  ✅ Se debitó: " << cobrado <<"USD"<< RESET << endl;
+            }
+            cout << endl << VERDE << "  ✅ Pago Exitoso" << RESET << endl;
             cout << CIAN << "  💸 Deuda Restante: " << RESET << fixed << setprecision(2) << servicio.getMontoDeuda() << " BOB" << endl;
         }
         else
