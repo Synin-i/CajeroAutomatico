@@ -8,6 +8,7 @@
 #include <windows.h>
 
 using namespace std;
+
 const string VERDE = "\033[1;32m";
 const string ROJO = "\033[1;31m";
 const string CIAN = "\033[1;36m";
@@ -80,8 +81,7 @@ private:
     double saldo;
 
 public:
-    CuentaBancaria(int pkIdCuenta, int fkIdCliente, string numeroCuenta,
-                   double saldo, string tipoMoneda)
+    CuentaBancaria(int pkIdCuenta, int fkIdCliente, string numeroCuenta, double saldo, string tipoMoneda)
         : pkIdCuenta(pkIdCuenta), fkIdCliente(fkIdCliente),
           numeroCuenta(numeroCuenta), saldo(saldo), tipoMoneda(tipoMoneda) {}
     int getPkIdCuenta() { return pkIdCuenta; }
@@ -89,6 +89,7 @@ public:
     string getNumeroCuenta() { return numeroCuenta; }
     double getSaldo() { return saldo; }
     string getTipoMoneda() { return tipoMoneda; }
+
     bool depositar(double monto)
     {
         if (monto > 0)
@@ -98,13 +99,13 @@ public:
         }
         return false;
     }
+
     bool retirar(double monto)
     {
         if (monto > 0 && monto <= saldo + 0.001)
         {
             saldo -= monto;
-            if (saldo < 0.01)
-                saldo = 0;
+            if (saldo < 0.01) saldo = 0;
             return true;
         }
         return false;
@@ -114,12 +115,11 @@ public:
     {
         if (pkIdCuenta == destino.getPkIdCuenta() || !retirar(monto))
         {
-            cout << endl
-                 << ROJO << "❌ Monto Inválido o Saldo Insuficiente"
-                 << RESET << endl;
+            cout << endl << ROJO << "❌ Monto Inválido o Saldo Insuficiente" << RESET << endl;
             return false;
         }
         double montoDestino = monto;
+
         if (tipoMoneda != destino.getTipoMoneda())
             montoDestino = (tipoMoneda == "BOB") ? (monto / tipoCambio) : (monto * tipoCambio);
 
@@ -149,7 +149,6 @@ private:
     int pkIdTransaccion, fkIdCliente, fkIdCuentaOrigen, fkIdCuentaDestino, fkIdServicio;
     double montoOrigen, montoDestino, tipoCambioAplicado;
     string tipoTransaccion, monedaOrigen, monedaDestino, fecha, hora;
-
     void registrarFechaHora()
     {
         time_t tiempo = time(nullptr);
@@ -228,8 +227,7 @@ int main()
     int pkIdCliente = verificarPin(clientes);
     validarTipoCambio(tipoCambio);
     int cuentaSeleccionada = seleccionarCuenta(cuentas, pkIdCliente);
-    if (cuentaSeleccionada == -1)
-        return 0;
+    if (cuentaSeleccionada == -1)return 0;
     menuPrincipal(cuentas, cuentaSeleccionada, listaServicios, pkIdCliente);
     system("pause > nul");
     return 0;
@@ -242,8 +240,7 @@ void leer(string texto, int &var)
     {
         cin.clear();
         cin.ignore(1000, '\n');
-        cout << AMARILLO << "\n⚠️ Caracter Invalido\n"
-             << RESET;
+        cout << AMARILLO << "\n⚠️ Caracter Invalido\n"<< RESET;
         cout << texto;
     }
 }
@@ -275,8 +272,7 @@ void cargarClientes(vector<Cliente> &clientes)
            getline(archivo, email, '|') && getline(archivo, direccion, '|') &&
            getline(archivo, telefono, '|') && getline(archivo, pin))
     {
-        clientes.push_back(Cliente(stoi(id), nombre, carnet, stoi(edad),
-                                   email, direccion, telefono, pin));
+        clientes.push_back(Cliente(stoi(id), nombre, carnet, stoi(edad),email, direccion, telefono, pin));
     }
 }
 void cargarCuentas(vector<CuentaBancaria> &cuentas)
@@ -288,8 +284,7 @@ void cargarCuentas(vector<CuentaBancaria> &cuentas)
            getline(archivo, numero, '|') && getline(archivo, moneda, '|') &&
            getline(archivo, saldo))
     {
-        cuentas.push_back(CuentaBancaria(stoi(idCuenta), stoi(idCliente),
-                                         numero, stod(saldo), moneda));
+        cuentas.push_back(CuentaBancaria(stoi(idCuenta), stoi(idCliente),numero, stod(saldo), moneda));
     }
 }
 void cargarServicios(vector<Servicios> &listaServicios)
@@ -301,8 +296,7 @@ void cargarServicios(vector<Servicios> &listaServicios)
            getline(archivo, nombre, '|') && getline(archivo, categoria, '|') &&
            getline(archivo, deuda))
     {
-        listaServicios.push_back(Servicios(stoi(idServicio),
-                                           stoi(idCliente), nombre, categoria, stod(deuda)));
+        listaServicios.push_back(Servicios(stoi(idServicio),stoi(idCliente), nombre, categoria, stod(deuda)));
     }
 }
 
@@ -388,6 +382,7 @@ int verificarPin(vector<Cliente> &clientes)
     }
     cout << endl
          << ROJO << "🔒 Demasiados intentos. Cerrando el sistema..." << RESET << endl;
+         system("pause >nul");
     exit(0);
 }
 
@@ -417,18 +412,17 @@ int seleccionarCuenta(vector<CuentaBancaria> &cuentas, int pkIdCliente, bool per
             CuentaBancaria &cuenta = cuentas[posiciones[i]];
             cout << "  [ " << i + 1 << " ] 💳 " << cuenta.getNumeroCuenta() << " - 🪙 " << cuenta.getTipoMoneda() << endl;
         }
-        cout << endl
-             << ROJO << (permitirVolver ? "  [ 0 ] Volver" : "  [ 0 ] Salir") << RESET << endl;
-        cout << VERDE << "\n==========================================================" << RESET << endl
-             << endl;
+
+        cout << endl<< ROJO << (permitirVolver ? "  [ 0 ] Volver" : "  [ 0 ] Salir") << RESET << endl;
+        cout << VERDE << "\n==========================================================" << RESET << endl << endl;
+
         int opcion;
         leer(CIAN + "▶ Seleccione una cuenta: " + RESET, opcion);
         if (opcion == 0)
             return -1;
         if (opcion >= 1 && opcion <= posiciones.size())
             return posiciones[opcion - 1];
-        cout << endl
-             << ROJO << "❌ Opción Inválida" << RESET << endl;
+        cout << endl<< ROJO << "❌ Opción Inválida" << RESET << endl;
         system("pause >nul");
     }
 }
@@ -441,9 +435,7 @@ void guardarDatosFinales(vector<CuentaBancaria> &cuentas, vector<Servicios> &lis
         archivoCuentas << "pkIdCuenta|fkIdCliente|numeroCuenta|tipoMoneda|saldo" << endl;
         for (CuentaBancaria &c : cuentas)
         {
-            archivoCuentas << c.getPkIdCuenta() << "|" << c.getFkIdCliente() << "|"
-                           << c.getNumeroCuenta() << "|" << c.getTipoMoneda() << "|"
-                           << fixed << setprecision(2) << c.getSaldo() << endl;
+            archivoCuentas << c.getPkIdCuenta() << "|" << c.getFkIdCliente() << "|"<< c.getNumeroCuenta() << "|" << c.getTipoMoneda() << "|"<< fixed << setprecision(2) << c.getSaldo() << endl;
         }
         archivoCuentas.close();
     }
@@ -453,9 +445,7 @@ void guardarDatosFinales(vector<CuentaBancaria> &cuentas, vector<Servicios> &lis
         archivoServ << "pkIdServicio|fkIdCliente|nombreServicio|categoria|montoDeuda" << endl;
         for (Servicios &s : listaServicios)
         {
-            archivoServ << s.getPkIdServicio() << "|" << s.getFkIdCliente() << "|"
-                        << s.getNombreServicio() << "|" << s.getCategoria() << "|"
-                        << fixed << setprecision(2) << s.getMontoDeuda() << endl;
+            archivoServ << s.getPkIdServicio() << "|" << s.getFkIdCliente() << "|"<< s.getNombreServicio() << "|" << s.getCategoria() << "|"<< fixed << setprecision(2) << s.getMontoDeuda() << endl;
         }
         archivoServ.close();
     }
@@ -473,44 +463,61 @@ void realizarRetiro(vector<CuentaBancaria> &cuentas, int cuentaSeleccionada, int
         Transaccion retiro(pkIdCliente, cuenta.getPkIdCuenta(), "Retiro", monto, cuenta.getTipoMoneda());
         retiro.guardarTransaccion();
         guardarDatosFinales(cuentas, listaServicios);
-        cout << endl
-             << VERDE << "✅ Retiro Exitoso" << RESET << endl;
+        cout << endl<< VERDE << "✅ Retiro Exitoso" << RESET << endl;
     }
     else
     {
-        cout << endl
-             << ROJO << "❌ Monto Inválido o Saldo Insuficiente" << RESET << endl;
+        cout << endl<< ROJO << "❌ Monto Inválido o Saldo Insuficiente" << RESET << endl;
     }
 }
 
 void realizarDeposito(vector<CuentaBancaria> &cuentas, int cuentaSeleccionada, int pkIdCliente, vector<Servicios> &listaServicios)
 {
-    double monto;
     cout << endl
          << VERDE << "=================== 📥 DEPOSITAR DINERO ==================" << RESET << endl;
-    leer(CIAN + "▶ Monto a Depositar: " + RESET, monto);
-    CuentaBancaria &cuenta = cuentas[cuentaSeleccionada];
-    if (cuenta.depositar(monto))
+    cout << "  [ 1 ] Bolivianos (BOB)" << endl;
+    cout << "  [ 2 ] Dólares (USD)" << endl;
+    int opMoneda;
+    leer(CIAN + "▶ Seleccione la moneda del depósito: " + RESET, opMoneda);
+    if (opMoneda != 1 && opMoneda != 2)
     {
-        Transaccion deposito(pkIdCliente, cuenta.getPkIdCuenta(), "Deposito", monto, cuenta.getTipoMoneda());
+        cout << endl << ROJO << "❌ Opción de moneda inválida" << RESET << endl;
+        return;
+    }
+    string monedaDeposito = (opMoneda == 2) ? "USD" : "BOB";
+    double monto;
+    leer(CIAN + "▶ Monto a Depositar (" + monedaDeposito + "): " + RESET, monto);
+    CuentaBancaria &cuenta = cuentas[cuentaSeleccionada];
+    double montoCuenta = monto;
+    double cambio = 0;
+    if (monedaDeposito != cuenta.getTipoMoneda())
+    {
+        cambio = tipoCambio;
+        montoCuenta = (monedaDeposito == "BOB") ? (monto / tipoCambio) : (monto * tipoCambio);
+    }
+    if (cuenta.depositar(montoCuenta))
+    {
+        Transaccion deposito(pkIdCliente, cuenta.getPkIdCuenta(), "Deposito", monto, monedaDeposito, 0, 0, montoCuenta, cuenta.getTipoMoneda(), cambio);
         deposito.guardarTransaccion();
         guardarDatosFinales(cuentas, listaServicios);
-        cout << endl
-             << VERDE << "✅ Depósito Exitoso" << RESET << endl;
+        cout << endl<< VERDE << "✅ Depósito Exitoso" << RESET << endl;  
+        if (monedaDeposito != cuenta.getTipoMoneda())
+        {
+            cout << CIAN << "  📥 Equivalente acreditado: " << RESET << fixed << setprecision(2) << montoCuenta << " " << cuenta.getTipoMoneda() << endl;
+        }
     }
     else
     {
-        cout << endl
-             << ROJO << "❌ Monto Inválido" << RESET << endl;
+        cout << endl<< ROJO << "❌ Monto Inválido" << RESET << endl;
     }
 }
 
 void realizarTransferencia(vector<CuentaBancaria> &cuentas, int cuentaSeleccionada, int pkIdCliente, bool propia, vector<Servicios> &listaServicios)
 {
-    cout << endl
-         << VERDE << (propia ? "============= 🔄 TRANSFERIR A CUENTAS PROPIAS ============" : "=============== 💸 TRANSFERIR A TERCEROS =================") << RESET << endl;
+    cout << endl<< VERDE << (propia ? "============= 🔄 TRANSFERIR A CUENTAS PROPIAS ============" : "=============== 💸 TRANSFERIR A TERCEROS =================") << RESET << endl;
     string numeroDestino;
     leer(CIAN + "▶ Cuenta Destino: " + RESET, numeroDestino);
+
     int indiceDestino = -1;
     for (size_t i = 0; i < cuentas.size(); i++)
     {
@@ -538,8 +545,7 @@ void realizarTransferencia(vector<CuentaBancaria> &cuentas, int cuentaSelecciona
         double recibido = destino.getSaldo() - saldoAnterior;
         double cambio = (origen.getTipoMoneda() != destino.getTipoMoneda()) ? tipoCambio : 0;
         string tipo = propia ? "Transferencia Propia" : "Transferencia Terceros";
-        Transaccion trans(pkIdCliente, origen.getPkIdCuenta(), tipo, monto, origen.getTipoMoneda(),
-                          destino.getPkIdCuenta(), 0, recibido, destino.getTipoMoneda(), cambio);
+        Transaccion trans(pkIdCliente, origen.getPkIdCuenta(), tipo, monto, origen.getTipoMoneda(), destino.getPkIdCuenta(), 0, recibido, destino.getTipoMoneda(), cambio);
         trans.guardarTransaccion();
         guardarDatosFinales(cuentas, listaServicios);
         cout << endl
@@ -589,56 +595,47 @@ void mostrarMenuServicios()
 void menuServicios(vector<Servicios> &listaServicios, vector<CuentaBancaria> &cuentas, int pkIdCliente, int cuentaSeleccionada)
 {
     string categorias[] = {"", "Servicios Basicos", "Telefonia, Internet y TV Cable", "Seguros", "Educacion", "Impuestos"};
-
     while (true)
     {
         system("cls");
         mostrarMenuServicios();
         int opCat;
         leer(CIAN + "▶ Seleccione una categoría: " + RESET, opCat);
-
         if (opCat == 0)
             return;
         if (opCat < 1 || opCat > 5)
         {
-            cout << endl
-                 << ROJO << "❌ Opción Inválida" << RESET << endl;
+            cout << endl<< ROJO << "❌ Opción Inválida" << RESET << endl;
             system("pause >nul");
             continue;
         }
-
         string catElegida = categorias[opCat];
-
         system("cls");
         cout << VERDE << "==========================================================" << RESET << endl;
         cout << VERDE << "           🧾 " << catElegida << " 🧾" << RESET << endl;
         cout << VERDE << "==========================================================" << RESET << endl
              << endl;
-
         vector<int> pos;
         for (size_t i = 0; i < listaServicios.size(); i++)
         {
             if (listaServicios[i].getFkIdCliente() == pkIdCliente && listaServicios[i].getCategoria() == catElegida)
             {
                 pos.push_back(i);
-                cout << "  [ " << pos.size() << " ] 🏢 "
-                     << left << setw(20) << listaServicios[i].getNombreServicio()
-                     << CIAN << "💸 Deuda: " << AMARILLO << right << setw(7)
-                     << fixed << setprecision(2) << listaServicios[i].getMontoDeuda()
-                     << " BOB" << RESET << endl;
+                cout << "  [ " << pos.size() << " ] 🏢 "<< left << setw(20) << listaServicios[i].getNombreServicio()<< CIAN << "💸 Deuda: " << AMARILLO << right << setw(7)
+                << fixed << setprecision(2) << listaServicios[i].getMontoDeuda()<< " BOB" << RESET << endl;
             }
         }
         if (pos.empty())
-            cout << AMARILLO << "  ⚠️ No tiene servicios en esta categoría" << RESET << endl;
-        cout << endl
-             << ROJO << "  [ 0 ] Volver" << RESET << endl;
-        cout << VERDE << "\n==========================================================" << RESET << endl
-             << endl;
+        cout << AMARILLO << "  ⚠️ No tiene servicios en esta categoría" << RESET << endl;
+        cout << endl << ROJO << "  [ 0 ] Volver" << RESET << endl;
+        cout << VERDE << "\n==========================================================" << RESET << endl<< endl;
         int opServ;
         leer(CIAN + "▶ Seleccione un servicio para pagar: " + RESET, opServ);
         if (opServ <= 0 || opServ > pos.size())
             continue;
+            
         Servicios &servicio = listaServicios[pos[opServ - 1]];
+
         if (servicio.getMontoDeuda() <= 0)
         {
             cout << endl
@@ -646,9 +643,10 @@ void menuServicios(vector<Servicios> &listaServicios, vector<CuentaBancaria> &cu
             system("pause >nul");
             continue;
         }
-        cout << endl
-             << VERDE << "----------------------------------------------------------" << RESET << endl;
+
+        cout << endl<< VERDE << "----------------------------------------------------------" << RESET << endl;
         cout << CIAN << "  🏢 Servicio seleccionado: " << RESET << servicio.getNombreServicio() << endl;
+        
         double monto;
         leer(CIAN + "  ▶ Monto a Pagar (BOB): " + RESET, monto);
 
@@ -687,9 +685,9 @@ void menuPrincipal(vector<CuentaBancaria> &cuentas, int cuentaSeleccionada, vect
     do
     {
         system("cls");
-        cout << VERDE << "==========================================================" << RESET << endl;
-        cout << CIAN << "  💳 Cuenta: " << RESET << cuentas[cuentaSeleccionada].getNumeroCuenta() << endl;
-        cout << CIAN << "  🪙 Moneda: " << RESET << cuentas[cuentaSeleccionada].getTipoMoneda() << endl;
+            cout << VERDE << "==========================================================" << RESET << endl;
+            cout << CIAN << "  💳 Cuenta: " << RESET << cuentas[cuentaSeleccionada].getNumeroCuenta() << endl;
+            cout << CIAN << "  🪙 Moneda: " << RESET << cuentas[cuentaSeleccionada].getTipoMoneda() << endl;
         mostrarMenuPrincipal();
 
         leer(CIAN + "▶ Seleccione una opción: " + RESET, opcion);
